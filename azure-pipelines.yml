@@ -1,0 +1,47 @@
+trigger:
+- main
+
+stages:
+  - stage: Build
+    pool:
+      vmImage: 'ubuntu-latest'
+    jobs:
+      - job: Package
+        steps:
+        - task: Maven@3
+          displayName: 'Maven Package'
+          inputs:
+            mavenPomFile: 'pom.xml'
+            mavenOptions: '-Xmx3072m'
+            javaHomeOption: 'JDKVersion'
+            jdkVersionOption: '1.8'
+            jdkArchitectureOption: 'x64'
+            publishJUnitResults: true
+            testResultsFiles: '**/surefire-reports/TEST-*.xml'
+            goals: 'clean package'
+
+  - stage: Deploy
+    jobs:
+    - deployment: Dev
+      displayName: Development
+      workspace:
+        clean: all
+      dependsOn: Build
+      # condition: string
+      continueOnError: false
+      # container: containerReference # container to run this job inside
+      # services: { string: string | container } # container resources to run as a service container
+      # timeoutInMinutes: nonEmptyString        # how long to run the job before automatically cancelling
+      # cancelTimeoutInMinutes: nonEmptyString  # how much time to give 'run always even if cancelled tasks' before killing them
+      # variables: # several syntaxes, see specific section
+      environment: Dev.akskratos
+      strategy:
+        runOnce:    #rolling, canary are the other strategies that are supported
+          deploy:
+            steps:
+            - checkout: self
+            - task: KubernetesManifest@0
+              inputs:
+                action: 'deploy'
+                namespace: 'default'
+                manifests: 'deployment.yaml'
