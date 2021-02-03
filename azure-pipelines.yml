@@ -41,8 +41,8 @@ stages:
     dependsOn: CI
     jobs:
 
-    - deployment: Deployment
-      displayName: 'Deployment East US 2'
+    - deployment: DeployEastUS2
+      displayName: 'Deploy East US 2'
       environment: Development.default
       strategy:
         runOnce:
@@ -57,8 +57,8 @@ stages:
                 manifests: 'deployment.yml'
                 containers: 'kvncont/hello-world:$(Build.BuildId)'
           
-    - deployment: Deployment
-      displayName: 'Deployment Central US'
+    - deployment: DeployCentralUS
+      displayName: 'Deploy Central US'
       environment: Development.development
       strategy:
         runOnce:
