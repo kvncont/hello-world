@@ -35,13 +35,12 @@ stages:
             tags: '$(Build.BuildId)'
 
   - stage: CD
-    displayName: 'Deploy K8s'
+    dependsOn: CI
     jobs:
     - deployment: Development
       displayName: 'Deploy Development'
       workspace:
         clean: all
-      dependsOn: CI
       # condition: string
       continueOnError: false
       # container: containerReference # container to run this job inside
