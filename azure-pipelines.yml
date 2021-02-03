@@ -29,7 +29,7 @@ stages:
           displayName: 'Build and Push'
           inputs:
             containerRegistry: 'Docker Registry'
-            repository: 'hello-world'
+            repository: 'kvncont/hello-world'
             command: 'buildAndPush'
             Dockerfile: '**/Dockerfile'
             tags: '$(Build.BuildId)'
