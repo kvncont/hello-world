@@ -48,7 +48,7 @@ stages:
       # timeoutInMinutes: nonEmptyString        # how long to run the job before automatically cancelling
       # cancelTimeoutInMinutes: nonEmptyString  # how much time to give 'run always even if cancelled tasks' before killing them
       # variables: # several syntaxes, see specific section
-      environment: Develoment.default
+      environment: Development.default
       strategy:
         runOnce:    #rolling, canary are the other strategies that are supported
           deploy:
