@@ -53,3 +53,4 @@ stages:
               inputs:
                 action: 'deploy'
                 manifests: 'deployment.yml'
+                containers: 'kvncont/hello-world:$(Build.BuildId)'
