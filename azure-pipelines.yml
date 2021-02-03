@@ -53,4 +53,4 @@ stages:
             - task: KubernetesManifest@0
               inputs:
                 action: 'deploy'
-                manifests: '$(Pipeline.Workspace)/deployment.yml'
+                manifests: 'deployment.yml'
