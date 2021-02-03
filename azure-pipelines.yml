@@ -40,13 +40,31 @@ stages:
     displayName: 'CD Stage'
     dependsOn: CI
     jobs:
-    - deployment: Deployment      
+
+    - deployment: Deployment
+      displayName: 'Deployment East US 2'
       environment: Development.default
       strategy:
         runOnce:
           deploy:
             steps:
 
+            - checkout: self
+
+            - task: KubernetesManifest@0
+              inputs:
+                action: 'deploy'
+                manifests: 'deployment.yml'
+                containers: 'kvncont/hello-world:$(Build.BuildId)'
+          
+    - deployment: Deployment
+      displayName: 'Deployment Central US'
+      environment: Development.development
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+           
             - checkout: self
 
             - task: KubernetesManifest@0
