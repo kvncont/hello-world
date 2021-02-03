@@ -2,7 +2,7 @@ trigger:
 - master
 
 stages:
-  - stage: Build
+  - stage: CI
     pool:
       vmImage: 'ubuntu-latest'
     jobs:
@@ -34,29 +34,28 @@ stages:
             Dockerfile: '**/Dockerfile'
             tags: '$(Build.BuildId)'
 
-  # - stage: Deploy
-  #   displayName: 'Deploy K8s'
-  #   jobs:
-  #   - deployment: Dev
-  #     displayName: Development
-  #     workspace:
-  #       clean: all
-  #     dependsOn: Build
-  #     # condition: string
-  #     continueOnError: false
-  #     # container: containerReference # container to run this job inside
-  #     # services: { string: string | container } # container resources to run as a service container
-  #     # timeoutInMinutes: nonEmptyString        # how long to run the job before automatically cancelling
-  #     # cancelTimeoutInMinutes: nonEmptyString  # how much time to give 'run always even if cancelled tasks' before killing them
-  #     # variables: # several syntaxes, see specific section
-  #     environment: Develoment.default
-  #     strategy:
-  #       runOnce:    #rolling, canary are the other strategies that are supported
-  #         deploy:
-  #           steps:
-  #           - checkout: self
-  #           - task: KubernetesManifest@0
-  #             inputs:
-  #               action: 'deploy'
-  #               namespace: 'default'
-  #               manifests: 'deployment.yaml'
+  - stage: CD
+    displayName: 'Deploy K8s'
+    jobs:
+    - deployment: Development
+      displayName: 'Deploy Development'
+      workspace:
+        clean: all
+      dependsOn: CI
+      # condition: string
+      continueOnError: false
+      # container: containerReference # container to run this job inside
+      # services: { string: string | container } # container resources to run as a service container
+      # timeoutInMinutes: nonEmptyString        # how long to run the job before automatically cancelling
+      # cancelTimeoutInMinutes: nonEmptyString  # how much time to give 'run always even if cancelled tasks' before killing them
+      # variables: # several syntaxes, see specific section
+      environment: Develoment.default
+      strategy:
+        runOnce:    #rolling, canary are the other strategies that are supported
+          deploy:
+            steps:
+            # - checkout: self
+            - task: KubernetesManifest@0
+              inputs:
+                action: 'deploy'
+                manifests: '$(Pipeline.Workspace)/deployment.yml'
