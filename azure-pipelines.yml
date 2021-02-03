@@ -19,6 +19,12 @@ stages:
             publishJUnitResults: true
             testResultsFiles: '**/surefire-reports/TEST-*.xml'
             goals: 'clean package'
+
+        - task: PublishPipelineArtifact@1
+          inputs:
+            targetPath: '$(Pipeline.Workspace)'
+            artifact: 'JAR'
+            publishLocation: 'pipeline'
   
   - stage: Docker
     displayName: 'Docker'
@@ -31,6 +37,14 @@ stages:
           displayName: 'Install'
           inputs:
             dockerVersion: '17.09.0-ce'
+
+        - task: DownloadPipelineArtifact@2
+          inputs:
+            buildType: 'current'
+            artifactName: 'JAR'
+            itemPattern: '**.jar'
+            targetPath: '$(Pipeline.Workspace)'
+
         - task: Docker@2
           displayName: 'Build and Push'
           inputs:
