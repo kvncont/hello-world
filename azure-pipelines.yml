@@ -40,8 +40,7 @@ stages:
     displayName: 'CD Stage'
     dependsOn: CI
     jobs:
-    - deployment: Deployment
-      displayName: 'Deploy Development - Hello World'
+    - deployment: Deployment      
       environment: Development.default
       strategy:
         runOnce:
