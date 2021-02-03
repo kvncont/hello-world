@@ -9,7 +9,7 @@ public class HelloWorldController {
     @RequestMapping("/")
 	public String index() {
 		System.out.println("Logs...");
-		return "Hello Wolrd from Spring Boot!";
+		return "Hello Wolrd from Spring Boot! v2.0";
 	}
     
 }
