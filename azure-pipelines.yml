@@ -3,6 +3,7 @@ trigger:
 
 stages:
   - stage: CI
+    displayName: 'CI Stage'
     pool:
       vmImage: 'ubuntu-latest'
     jobs:
@@ -35,6 +36,7 @@ stages:
             tags: '$(Build.BuildId)'
 
   - stage: CD
+    displayName: 'CD Stage'
     dependsOn: CI
     jobs:
     - deployment: Development
@@ -50,10 +52,10 @@ stages:
       # variables: # several syntaxes, see specific section
       environment: Development.default
       strategy:
-        runOnce:    #rolling, canary are the other strategies that are supported
+        runOnce: #runOnce, rolling, canary are the other strategies that are supported
           deploy:
             steps:
-            # - checkout: self
+            - checkout: self
             - task: KubernetesManifest@0
               inputs:
                 action: 'deploy'
