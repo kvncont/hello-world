@@ -9,6 +9,7 @@ stages:
     jobs:
       - job: Build
         steps:
+
         - task: Maven@3
           displayName: 'Maven Package'
           inputs:
@@ -46,6 +47,9 @@ stages:
         runOnce:
           deploy:
             steps:
+
+            - checkout: self
+
             - task: KubernetesManifest@0
               inputs:
                 action: 'deploy'
