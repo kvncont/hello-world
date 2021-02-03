@@ -31,7 +31,7 @@ spec:
     spec:
       containers:
       - name: hello-world
-        image: kvncont/hello-world:145
+        image: kvncont/hello-world:144
         resources:
           limits:
             memory: "256Mi"
