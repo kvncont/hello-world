@@ -56,6 +56,7 @@ stages:
                 action: 'deploy'
                 manifests: 'deployment.yml'
                 containers: 'kvncont/hello-world:$(Build.BuildId)'
+                rolloutStatusTimeout: '300'
 
     - deployment: DeployDev2
       displayName: 'Deploy Dev 2'
@@ -72,6 +73,7 @@ stages:
                 action: 'deploy'
                 manifests: 'deployment.yml'
                 containers: 'kvncont/hello-world:$(Build.BuildId)'
+                rolloutStatusTimeout: '300'
 
   - stage: CD_PRO
     displayName: 'CD Pro Stage'
@@ -93,6 +95,7 @@ stages:
                 action: 'deploy'
                 manifests: 'deployment.yml'
                 containers: 'kvncont/hello-world:$(Build.BuildId)'
+                rolloutStatusTimeout: '300'
             
     - deployment: DeployProCentralUS
       displayName: 'Deploy Pro Central US'
@@ -109,3 +112,4 @@ stages:
                 action: 'deploy'
                 manifests: 'deployment.yml'
                 containers: 'kvncont/hello-world:$(Build.BuildId)'
+                rolloutStatusTimeout: '300'
