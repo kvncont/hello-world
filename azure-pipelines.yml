@@ -43,7 +43,7 @@ stages:
 
     - deployment: Deploy
       displayName: 'Deploy Dev'
-      environment: Development AKS
+      environment: Development
       strategy:
         runOnce:
           deploy:
