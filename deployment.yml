@@ -32,9 +32,9 @@ spec:
       containers:
       - name: hello-world
         image: kvncont/hello-world:147
-        resources:
-          limits:
-            memory: "256Mi"
-            cpu: "200m"
+        # resources:
+        #   limits:
+        #     memory: "256Mi"
+        #     cpu: "200m"
         ports:
         - containerPort: 8080
