@@ -36,7 +36,7 @@ stages:
             Dockerfile: '**/Dockerfile'
             tags: '$(Build.BuildId)'
 
-  - stage: CD-Dev
+  - stage: CD_DEV
     displayName: 'CD Dev Stage'
     dependsOn: CI
     jobs:
