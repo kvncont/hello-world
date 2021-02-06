@@ -41,9 +41,9 @@ stages:
     dependsOn: CI
     jobs:
 
-    - deployment: Deploy
-      displayName: 'Deploy Dev'
-      environment: Development
+    - deployment: DeployDev1
+      displayName: 'Deploy Dev 1'
+      environment: Development.dev1
       strategy:
         runOnce:
           deploy:
@@ -57,18 +57,18 @@ stages:
                 manifests: 'deployment.yml'
                 containers: 'kvncont/hello-world:$(Build.BuildId)'
 
-    # - deployment: DeployCentralUS
-    #   displayName: 'Deploy Central US'
-    #   environment: Development.development
-    #   strategy:
-    #     runOnce:
-    #       deploy:
-    #         steps:
+    - deployment: DeployDev2
+      displayName: 'Deploy Dev 2'
+      environment: Development.dev2
+      strategy:
+        runOnce:
+          deploy:
+            steps:
 
-    #         - checkout: self
+            - checkout: self
 
-    #         - task: KubernetesManifest@0
-    #           inputs:
-    #             action: 'deploy'
-    #             manifests: 'deployment.yml'
-    #             containers: 'kvncont/hello-world:$(Build.BuildId)'
+            - task: KubernetesManifest@0
+              inputs:
+                action: 'deploy'
+                manifests: 'deployment.yml'
+                containers: 'kvncont/hello-world:$(Build.BuildId)'
