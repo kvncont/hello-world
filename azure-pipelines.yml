@@ -36,14 +36,14 @@ stages:
             Dockerfile: '**/Dockerfile'
             tags: '$(Build.BuildId)'
 
-  - stage: CD
-    displayName: 'CD Stage'
+  - stage: CD-Dev
+    displayName: 'CD Dev Stage'
     dependsOn: CI
     jobs:
 
-    - deployment: DeployEastUS2
-      displayName: 'Deploy East US 2'
-      environment: Development.default
+    - deployment: Deploy
+      displayName: 'Deploy Dev'
+      environment: Development
       strategy:
         runOnce:
           deploy:
@@ -57,18 +57,18 @@ stages:
                 manifests: 'deployment.yml'
                 containers: 'kvncont/hello-world:$(Build.BuildId)'
 
-    - deployment: DeployCentralUS
-      displayName: 'Deploy Central US'
-      environment: Development.development
-      strategy:
-        runOnce:
-          deploy:
-            steps:
+    # - deployment: DeployCentralUS
+    #   displayName: 'Deploy Central US'
+    #   environment: Development.development
+    #   strategy:
+    #     runOnce:
+    #       deploy:
+    #         steps:
 
-            - checkout: self
+    #         - checkout: self
 
-            - task: KubernetesManifest@0
-              inputs:
-                action: 'deploy'
-                manifests: 'deployment.yml'
-                containers: 'kvncont/hello-world:$(Build.BuildId)'
+    #         - task: KubernetesManifest@0
+    #           inputs:
+    #             action: 'deploy'
+    #             manifests: 'deployment.yml'
+    #             containers: 'kvncont/hello-world:$(Build.BuildId)'
