@@ -75,7 +75,7 @@ stages:
 
   - stage: CD_PRO
     displayName: 'CD Pro Stage'
-    dependsOn: CI
+    dependsOn: CD_DEV
     jobs:
             
     - deployment: DeployProEastUS2
