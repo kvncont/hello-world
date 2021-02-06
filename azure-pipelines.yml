@@ -75,6 +75,30 @@ stages:
                 containers: 'kvncont/hello-world:$(Build.BuildId)'
                 rolloutStatusTimeout: '300'
 
+  - stage: CD_TEST
+    displayName: 'CD Test Stage'
+    dependsOn: CI
+    jobs:
+
+    - deployment: DeployTest
+      displayName: 'Deploy Test'
+      environment: Test
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+
+            - checkout: self
+
+            - task: KubernetesManifest@0
+              inputs:
+                action: 'deploy'
+                kubernetesServiceConnection: 'Test-akskratos-default'
+                namespace: 'default'
+                manifests: 'deployment.yml'
+                containers: 'kvncont/hello-world:$(Build.BuildId)'
+                rolloutStatusTimeout: '300'
+
   - stage: CD_PRO
     displayName: 'CD Pro Stage'
     dependsOn: CD_DEV
