@@ -72,3 +72,40 @@ stages:
                 action: 'deploy'
                 manifests: 'deployment.yml'
                 containers: 'kvncont/hello-world:$(Build.BuildId)'
+
+  - stage: CD_PRO
+    displayName: 'CD Pro Stage'
+    dependsOn: CI
+    jobs:
+            
+    - deployment: DeployProEastUS2
+      displayName: 'Deploy Pro East US 2'
+      environment: Development.proeastus2
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+
+            - checkout: self
+
+            - task: KubernetesManifest@0
+              inputs:
+                action: 'deploy'
+                manifests: 'deployment.yml'
+                containers: 'kvncont/hello-world:$(Build.BuildId)'
+            
+    - deployment: DeployProCentralUS
+      displayName: 'Deploy Pro Central US'
+      environment: Development.procentralus
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+
+            - checkout: self
+
+            - task: KubernetesManifest@0
+              inputs:
+                action: 'deploy'
+                manifests: 'deployment.yml'
+                containers: 'kvncont/hello-world:$(Build.BuildId)'
