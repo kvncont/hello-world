@@ -41,26 +41,9 @@ stages:
     dependsOn: CI
     jobs:
 
-    - deployment: DeployDev1
-      displayName: 'Deploy Dev 1'
-      environment: Development.dev1
-      strategy:
-        runOnce:
-          deploy:
-            steps:
-
-            - checkout: self
-
-            - task: KubernetesManifest@0
-              inputs:
-                action: 'deploy'
-                manifests: 'deployment.yml'
-                containers: 'kvncont/hello-world:$(Build.BuildId)'
-                rolloutStatusTimeout: '300'
-
-    - deployment: DeployDev2
-      displayName: 'Deploy Dev 2'
-      environment: Development.dev2
+    - deployment: DeployDev
+      displayName: 'Deploy Dev'
+      environment: Development.app
       strategy:
         runOnce:
           deploy:
