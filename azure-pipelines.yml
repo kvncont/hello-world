@@ -8,7 +8,7 @@ pr:
 variables:
 
 - name: k8sNamespaceForPR
-  value: $[variables['Build.SourceBranch']]
+  value: app-pr-$(System.PullRequest.PullRequestId)
 
 - name: resourceName
   value: app
@@ -51,6 +51,7 @@ stages:
 
 - stage: CD_DEV
   displayName: CD Dev - Stage
+  condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/pull/'), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   dependsOn: CI
   jobs:
 
