@@ -60,7 +60,7 @@ stages:
           deploy:
             steps:
 
-            - reviewApp: $(resourceName)
+            - reviewApp: app
 
             - checkout: self
 
