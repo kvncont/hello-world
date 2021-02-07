@@ -65,7 +65,7 @@ stages:
             
     - deployment: DeployProEastUS2
       displayName: 'Deploy Pro East US 2'
-      environment: Production.proeastus2
+      environment: Production.eastus2
       strategy:
         runOnce:
           deploy:
@@ -82,7 +82,7 @@ stages:
             
     - deployment: DeployProCentralUS
       displayName: 'Deploy Pro Central US'
-      environment: Production.procentralus
+      environment: Production.centralus
       strategy:
         runOnce:
           deploy:
