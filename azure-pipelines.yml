@@ -51,7 +51,7 @@ stages:
 
 - stage: CD_DEV
   displayName: CD Dev - Stage
-  condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/pull/'), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  condition: and(succeeded(), or(startsWith(variables['Build.SourceBranch'], 'refs/pull/'), eq(variables['Build.SourceBranch'], 'refs/heads/master')))
   dependsOn: CI
   jobs:
 
