@@ -1,48 +1,50 @@
 trigger:
 - master
+- feature/*
 
 stages:
   - stage: CI
-    displayName: 'CI Stage'
+    displayName: CI Stage
     pool:
-      vmImage: 'ubuntu-latest'
+      vmImage: ubuntu-latest
     jobs:
       - job: Build
         steps:
 
         - task: Maven@3
-          displayName: 'Maven Package'
+          displayName: Maven Package
           inputs:
-            mavenPomFile: 'pom.xml'
-            mavenOptions: '-Xmx3072m'
-            javaHomeOption: 'JDKVersion'
-            jdkVersionOption: '1.8'
-            jdkArchitectureOption: 'x64'
+            mavenPomFile: pom.xml
+            mavenOptions: -Xmx3072m
+            javaHomeOption: JDKVersion
+            jdkVersionOption: 1.8
+            jdkArchitectureOption: x64
             publishJUnitResults: true
             testResultsFiles: '**/surefire-reports/TEST-*.xml'
-            goals: 'clean package'
+            goals: clean package
 
         - task: DockerInstaller@0
-          displayName: 'Install'
+          displayName: Install
           inputs:
-            dockerVersion: '17.09.0-ce'
+            dockerVersion: 17.09.0-ce
 
         - task: Docker@2
-          displayName: 'Build and Push'
+          displayName: Build and Push
           inputs:
-            containerRegistry: 'Docker Registry'
-            repository: 'kvncont/hello-world'
-            command: 'buildAndPush'
+            containerRegistry: Docker Registry
+            repository: kvncont/hello-world
+            command: buildAndPush
             Dockerfile: '**/Dockerfile'
-            tags: '$(Build.BuildId)'
+            tags: $(Build.BuildId)
 
   - stage: CD_DEV
-    displayName: 'CD Dev Stage'
+    displayName: CD Dev Stage
     dependsOn: CI
     jobs:
 
     - deployment: DeployDev
-      displayName: 'Deploy Dev'
+      displayName: Deploy Dev
+      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
       environment: Development.app
       strategy:
         runOnce:
@@ -53,18 +55,19 @@ stages:
 
             - task: KubernetesManifest@0
               inputs:
-                action: 'deploy'
-                manifests: 'deployment.yml'
-                containers: 'kvncont/hello-world:$(Build.BuildId)'
+                action: deploy
+                manifests: deployment.yml
+                containers: kvncont/hello-world:$(Build.BuildId)
                 rolloutStatusTimeout: '300'
 
   - stage: CD_PRO
-    displayName: 'CD Pro Stage'
+    displayName: CD Pro Stage
     dependsOn: CD_DEV
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
     jobs:
-            
+
     - deployment: DeployProEastUS2
-      displayName: 'Deploy Pro East US 2'
+      displayName: Deploy Pro East US 2
       environment: Production.eastus2
       strategy:
         runOnce:
@@ -75,13 +78,13 @@ stages:
 
             - task: KubernetesManifest@0
               inputs:
-                action: 'deploy'
-                manifests: 'deployment.yml'
-                containers: 'kvncont/hello-world:$(Build.BuildId)'
-                rolloutStatusTimeout: '300'
+                action: deploy
+                manifests: deployment.yml
+                containers: kvncont/hello-world:$(Build.BuildId)
+                rolloutStatusTimeout: 300
             
     - deployment: DeployProCentralUS
-      displayName: 'Deploy Pro Central US'
+      displayName: Deploy Pro Central US
       environment: Production.centralus
       strategy:
         runOnce:
@@ -92,7 +95,7 @@ stages:
 
             - task: KubernetesManifest@0
               inputs:
-                action: 'deploy'
-                manifests: 'deployment.yml'
-                containers: 'kvncont/hello-world:$(Build.BuildId)'
-                rolloutStatusTimeout: '300'
+                action: deploy
+                manifests: deployment.yml
+                containers: kvncont/hello-world:$(Build.BuildId)
+                rolloutStatusTimeout: 300
