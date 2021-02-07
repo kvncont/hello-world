@@ -68,18 +68,19 @@ stages:
 
           - checkout: self
 
-          - task: Kubernetes@1
-            displayName: Create a new namespace for the pull request
-            inputs:
-              command: apply
-              useConfigurationFile: true
-              inline: '{ "kind": "Namespace", "apiVersion": "v1", "metadata": { "name": "$(k8sNamespaceForPR)" }}'
+          # - task: Kubernetes@1
+          #   displayName: Create a new namespace for the pull request
+          #   inputs:
+          #     command: apply
+          #     useConfigurationFile: true
+          #     inline: '{ "kind": "Namespace", "apiVersion": "v1", "metadata": { "name": "$(k8sNamespaceForPR)" }}'
 
           - task: KubernetesManifest@0
             inputs:
-              action: deploy
-              manifests: deployment.yml
-              containers: kvncont/hello-world:$(Build.BuildId)
+              action: 'deploy'
+              namespace: '$(k8sNamespaceForPR)'
+              manifests: 'deployment.yml'
+              containers: 'kvncont/hello-world:$(Build.BuildId)'
               rolloutStatusTimeout: '300'
 
   - deployment: DeployDev
