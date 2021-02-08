@@ -127,7 +127,7 @@ stages:
             displayName: Deploy Manifest
             inputs:
               action: deploy
-              manifests: deployment.yml
+              manifests: $(Pipeline.Workspace)/manifest/deployment.yml
               containers: kvncont/hello-world:$(Build.BuildId)
               rolloutStatusTimeout: 300
           
@@ -151,6 +151,6 @@ stages:
             displayName: Deploy Manifest
             inputs:
               action: deploy
-              manifests: deployment.yml
+              manifests: $(Pipeline.Workspace)/manifest/deployment.yml
               containers: kvncont/hello-world:$(Build.BuildId)
               rolloutStatusTimeout: 300
