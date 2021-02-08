@@ -36,7 +36,7 @@ stages:
           goals: clean package
 
       - task: DockerInstaller@0
-        displayName: Install
+        displayName: Docker Install
         inputs:
           dockerVersion: 17.09.0-ce
 
@@ -59,7 +59,7 @@ stages:
 
 - stage: CD_DEV
   displayName: CD Dev - Stage
-  # condition: and(succeeded(), or(startsWith(variables['Build.SourceBranch'], 'refs/pull/'), eq(variables['Build.SourceBranch'], 'refs/heads/master')))
+  condition: and(succeeded(), or(startsWith(variables['Build.SourceBranch'], 'refs/pull/'), eq(variables['Build.SourceBranch'], 'refs/heads/master')))
   dependsOn: CI
   jobs:
 
