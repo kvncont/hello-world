@@ -115,8 +115,6 @@ stages:
         deploy:
           steps:
 
-          - checkout: self
-
           - task: KubernetesManifest@0
             displayName: Create Secret
             inputs:
@@ -140,8 +138,6 @@ stages:
       runOnce:
         deploy:
           steps:
-
-          - checkout: self
 
           - task: KubernetesManifest@0
             displayName: Create Secret
