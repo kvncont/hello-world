@@ -22,16 +22,15 @@ stages:
       - task: Maven@3
         displayName: Maven Package
         inputs:
-          mavenPomFile: 'pom.xml'
-          goals: 'clean package'
+          mavenPomFile: pom.xml
+          goals: clean package
           publishJUnitResults: true
           testResultsFiles: '**/surefire-reports/TEST-*.xml'
-          codeCoverageToolOption: 'JaCoCo'
+          codeCoverageToolOption: JaCoCo
           codeCoverageRestoreOriginalPomXml: true
-          javaHomeOption: 'JDKVersion'
-          jdkVersionOption: '1.8'
-          mavenVersionOption: 'Default'
-          mavenOptions: '-Xmx3072m'
+          javaHomeOption: JDKVersion
+          jdkVersionOption: 1.8
+          mavenOptions: -Xmx3072m
 
       - task: DockerInstaller@0
         displayName: Docker Install
