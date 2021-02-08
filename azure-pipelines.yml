@@ -58,7 +58,7 @@ stages:
       - task: PublishPipelineArtifact@1
         displayName: Upload Manifest
         inputs:
-          targetPath: $(Pipeline.Workspace)/deployment.yml
+          targetPath: $(Build.SourcesDirectory)/deployment.yml
           artifact: manifest
           publishLocation: pipeline
 
@@ -79,9 +79,9 @@ stages:
 
           - task: DownloadPipelineArtifact@2
             inputs:
-              buildType: 'current'
-              artifactName: 'manifest'
-              targetPath: '$(Pipeline.Workspace)/deployment.yml'
+              buildType: current
+              artifactName: manifest
+              targetPath: $(Build.SourcesDirectory)/deployment.yml
 
           - task: KubernetesManifest@0
             displayName: Create Secret
