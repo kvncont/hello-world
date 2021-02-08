@@ -78,10 +78,12 @@ stages:
           steps:
 
           - task: DownloadPipelineArtifact@2
+            displayName: Download Manifest
             inputs:
-              buildType: current
-              artifactName: manifest
-              targetPath: $(Build.SourcesDirectory)/deployment.yml
+              buildType: 'current'
+              artifactName: 'manifest'
+              itemPattern: '**/deployment.yml'
+              targetPath: '$(Build.SourcesDirectory)'
 
           - task: KubernetesManifest@0
             displayName: Create Secret
