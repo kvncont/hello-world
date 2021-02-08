@@ -63,41 +63,6 @@ stages:
   dependsOn: CI
   jobs:
 
-  # - deployment: DeployPRDev
-  #   displayName: Deploy Pull Request - Dev
-  #   condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/pull/'))
-  #   environment: Development.$(k8sNamespaceForPR)
-  #   strategy:
-  #     runOnce:
-  #       deploy:
-  #         steps:
-
-  #         - reviewApp: app
-
-  #         - checkout: self
-
-  #         - task: Kubernetes@1
-  #           displayName: Create a new namespace for the pull request
-  #           inputs:
-  #             connectionType: 'Kubernetes Service Connection'
-  #             kubernetesServiceEndpoint: 'k8s-akskratos-app'
-  #             command: 'apply'
-  #             useConfigurationFile: true
-  #             configurationType: 'inline'
-  #             inline: |
-  #               apiVersion: v1
-  #               kind: Namespace
-  #               metadata:
-  #                 name: '$(k8sNamespaceForPR)'
-
-  #         - task: KubernetesManifest@0
-  #           inputs:
-  #             action: 'deploy'
-  #             namespace: '$(k8sNamespaceForPR)'
-  #             manifests: 'deployment.yml'
-  #             containers: 'kvncont/hello-world:$(Build.BuildId)'
-  #             rolloutStatusTimeout: '300'
-
   - deployment: DeployDev
     displayName: Deploy - Dev
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
@@ -108,6 +73,13 @@ stages:
           steps:
 
           - checkout: self
+
+          - task: KubernetesManifest@0
+            inputs:
+              action: createSecret
+              secretType: dockerRegistry
+              secretName: docker-registry-kvncont
+              dockerRegistryEndpoint: Docker Registry
 
           - task: KubernetesManifest@0
             inputs:
@@ -134,6 +106,13 @@ stages:
 
           - task: KubernetesManifest@0
             inputs:
+              action: createSecret
+              secretType: dockerRegistry
+              secretName: docker-registry-kvncont
+              dockerRegistryEndpoint: Docker Registry
+
+          - task: KubernetesManifest@0
+            inputs:
               action: deploy
               manifests: deployment.yml
               containers: kvncont/hello-world:$(Build.BuildId)
@@ -148,6 +127,13 @@ stages:
           steps:
 
           - checkout: self
+
+          - task: KubernetesManifest@0
+            inputs:
+              action: createSecret
+              secretType: dockerRegistry
+              secretName: docker-registry-kvncont
+              dockerRegistryEndpoint: Docker Registry
 
           - task: KubernetesManifest@0
             inputs:
