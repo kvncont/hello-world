@@ -1,0 +1,155 @@
+trigger:
+- master
+- feature/*
+
+pr:
+- master
+
+variables:
+
+- name: k8sNamespaceForPR
+  value: app-pr-$(System.PullRequest.PullRequestId)
+
+- name: resourceName
+  value: app
+
+stages:
+
+- stage: CI
+  displayName: CI - Stage
+  pool:
+    vmImage: ubuntu-latest
+  jobs:
+    - job: Build
+      steps:
+
+      - task: Maven@3
+        displayName: Maven Package
+        inputs:
+          mavenPomFile: pom.xml
+          mavenOptions: -Xmx3072m
+          javaHomeOption: JDKVersion
+          jdkVersionOption: 1.8
+          jdkArchitectureOption: x64
+          publishJUnitResults: true
+          testResultsFiles: '**/surefire-reports/TEST-*.xml'
+          goals: clean package
+
+      - task: DockerInstaller@0
+        displayName: Docker Install
+        inputs:
+          dockerVersion: 17.09.0-ce
+
+      - task: Docker@2
+        displayName: Docker Build
+        inputs:
+          repository: kvncont/hello-world
+          command: build
+          Dockerfile: '**/Dockerfile'
+          tags: $(Build.BuildId)
+
+      - task: Docker@2
+        displayName: Docker Push
+        condition: and(succeeded(), or(startsWith(variables['Build.SourceBranch'], 'refs/pull/'), eq(variables['Build.SourceBranch'], 'refs/heads/master')))
+        inputs:
+          containerRegistry: Docker Registry
+          repository: kvncont/hello-world
+          command: push
+          tags: $(Build.BuildId)
+
+- stage: CD_DEV
+  displayName: CD Dev - Stage
+  condition: and(succeeded(), or(startsWith(variables['Build.SourceBranch'], 'refs/pull/'), eq(variables['Build.SourceBranch'], 'refs/heads/master')))
+  dependsOn: CI
+  jobs:
+
+  - deployment: DeployPRDev
+    displayName: Deploy Pull Request - Dev
+    condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/pull/'))
+    environment: Development.$(k8sNamespaceForPR)
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+
+          - reviewApp: app
+
+          - checkout: self
+
+          - task: Kubernetes@1
+            displayName: Create a new namespace for the pull request
+            inputs:
+              command: 'apply'
+              useConfigurationFile: true
+              configurationType: 'inline'
+              inline: |
+                apiVersion: v1
+                kind: Namespace
+                metadata:
+                  name: '$(k8sNamespaceForPR)'
+
+          - task: KubernetesManifest@0
+            inputs:
+              action: 'deploy'
+              namespace: '$(k8sNamespaceForPR)'
+              manifests: 'deployment.yml'
+              containers: 'kvncont/hello-world:$(Build.BuildId)'
+              rolloutStatusTimeout: '300'
+
+  - deployment: DeployDev
+    displayName: Deploy - Dev
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    environment: Development.app
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+
+          - checkout: self
+
+          - task: KubernetesManifest@0
+            inputs:
+              action: deploy
+              manifests: deployment.yml
+              containers: kvncont/hello-world:$(Build.BuildId)
+              rolloutStatusTimeout: '300'
+
+- stage: CD_PRO
+  displayName: CD Pro - Stage
+  dependsOn: CD_DEV
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  jobs:
+
+  - deployment: DeployEastUS2Pro
+    displayName: Deploy East US 2 - Pro
+    environment: Production.eastus2
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+
+          - checkout: self
+
+          - task: KubernetesManifest@0
+            inputs:
+              action: deploy
+              manifests: deployment.yml
+              containers: kvncont/hello-world:$(Build.BuildId)
+              rolloutStatusTimeout: 300
+          
+  - deployment: DeployCentralUSPro
+    displayName: Deploy Central US - Pro
+    environment: Production.centralus
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+
+          - checkout: self
+
+          - task: KubernetesManifest@0
+            inputs:
+              action: deploy
+              manifests: deployment.yml
+              containers: kvncont/hello-world:$(Build.BuildId)
+              rolloutStatusTimeout: 300
