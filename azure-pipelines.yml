@@ -75,6 +75,7 @@ stages:
           - checkout: self
 
           - task: KubernetesManifest@0
+            displayName: Create Secret
             inputs:
               action: createSecret
               secretType: dockerRegistry
@@ -82,6 +83,7 @@ stages:
               dockerRegistryEndpoint: Docker Registry
 
           - task: KubernetesManifest@0
+            displayName: Deploy Manifest
             inputs:
               action: deploy
               manifests: deployment.yml
@@ -105,6 +107,7 @@ stages:
           - checkout: self
 
           - task: KubernetesManifest@0
+            displayName: Create Secret
             inputs:
               action: createSecret
               secretType: dockerRegistry
@@ -112,6 +115,7 @@ stages:
               dockerRegistryEndpoint: Docker Registry
 
           - task: KubernetesManifest@0
+            displayName: Deploy Manifest
             inputs:
               action: deploy
               manifests: deployment.yml
@@ -129,6 +133,7 @@ stages:
           - checkout: self
 
           - task: KubernetesManifest@0
+            displayName: Create Secret
             inputs:
               action: createSecret
               secretType: dockerRegistry
@@ -136,6 +141,7 @@ stages:
               dockerRegistryEndpoint: Docker Registry
 
           - task: KubernetesManifest@0
+            displayName: Deploy Manifest
             inputs:
               action: deploy
               manifests: deployment.yml
