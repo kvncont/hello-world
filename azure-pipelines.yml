@@ -109,7 +109,7 @@ stages:
               namespace: '$(k8sNamespaceForPR)'
               command: 'apply'
               useConfigurationFile: true
-              configuration: 'deployment.yml'
+              configuration: '$(Pipeline.Workspace)/manifest/deployment.yml'
               workingDirectory: '$(Pipeline.Workspace)/manifest'
 
           # - task: KubernetesManifest@0
