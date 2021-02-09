@@ -11,7 +11,7 @@ pr:
 
 variables:
 - name: k8sNamespaceForPR
-  value: pull-requests 
+  value: app-review-app-$(System.PullRequest.PullRequestId)
 
 stages:
 
@@ -82,18 +82,22 @@ stages:
 
           - reviewApp: app
 
-#           - task: Kubernetes@1
-#             displayName: Create a new namespace for the pull request
-#             inputs:
-#               command: apply
-#               useConfigurationFile: true
-#               useClusterAdmin: true
-#               configurationType: inline
-#               inline: |
-#                 apiVersion: v1
-#                 kind: Namespace
-#                 metadata:
-#                   name: '$(k8sNamespaceForPR)'
+          - task: Kubernetes@1
+            displayName: Create a new namespace for the pull request
+            inputs:
+              connectionType: 'Azure Resource Manager'
+              azureSubscriptionEndpoint: 'azure-service-connection-development-rg-akskratos'
+              azureResourceGroup: 'rg-akskratos'
+              kubernetesCluster: 'akskratos'
+              useClusterAdmin: true
+              command: 'apply'
+              useConfigurationFile: true
+              configurationType: 'inline'
+              inline: |
+                apiVersion: v1
+                kind: Namespace
+                metadata:
+                  name: '$(k8sNamespaceForPR)'
 
           - task: KubernetesManifest@0
             inputs:
