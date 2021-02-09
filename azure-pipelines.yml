@@ -1,9 +1,6 @@
 trigger:
 - master
 - develop
-- feature/*
-- hotfix/*
-- fix/*
 
 pr:
 - master
@@ -85,40 +82,23 @@ stages:
           - task: Kubernetes@1
             displayName: Create a new namespace for the pull request
             inputs:
-              connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: 'azure-service-connection-development-rg-akskratos'
-              azureResourceGroup: 'rg-akskratos'
-              kubernetesCluster: 'akskratos'
               useClusterAdmin: true
-              command: 'apply'
+              command: apply
               useConfigurationFile: true
-              configurationType: 'inline'
+              configurationType: inline
               inline: |
                 apiVersion: v1
                 kind: Namespace
                 metadata:
-                  name: '$(k8sNamespaceForPR)'
+                  name: $(k8sNamespaceForPR)
 
-          - task: Kubernetes@1
+          - task: KubernetesManifest@0
             inputs:
-              connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: 'azure-service-connection-development-rg-akskratos'
-              azureResourceGroup: 'rg-akskratos'
-              kubernetesCluster: 'akskratos'
-              useClusterAdmin: true
-              namespace: '$(k8sNamespaceForPR)'
-              command: 'apply'
-              useConfigurationFile: true
-              configuration: '$(Pipeline.Workspace)/manifest/deployment.yml'
-              workingDirectory: '$(Pipeline.Workspace)/manifest'
-
-          # - task: KubernetesManifest@0
-          #   inputs:
-          #     action: deploy
-          #     namespace: $(k8sNamespaceForPR)
-          #     manifests: $(Pipeline.Workspace)/manifest/deployment.yml
-          #     containers: kvncont/hello-world:$(Build.BuildId)
-          #     rolloutStatusTimeout: 300
+              action: deploy
+              namespace: $(k8sNamespaceForPR)
+              manifests: $(Pipeline.Workspace)/manifest/deployment.yml
+              containers: kvncont/hello-world:$(Build.BuildId)
+              rolloutStatusTimeout: 300
 
   - deployment: DeployDev
     displayName: Deploy - Dev
