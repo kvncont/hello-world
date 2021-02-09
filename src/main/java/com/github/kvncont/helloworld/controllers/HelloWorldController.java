@@ -8,8 +8,8 @@ public class HelloWorldController {
 
     @RequestMapping("/")
 	public String index() {
-		System.out.println("Branch... pr-8.1");
-		return "Hello Wolrd from Spring Boot! v3.1";
+		System.out.println("Branch... pr-10");
+		return "Hello Wolrd from Spring Boot! v3.1 pr-10";
 	}
     
 }
