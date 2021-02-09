@@ -9,6 +9,10 @@ pr:
 - master
 - develop
 
+variables:
+- name: k8sNamespaceForPR
+  value: app-pr-$(System.PullRequest.PullRequestId) 
+
 stages:
 
 - stage: CI
