@@ -84,9 +84,9 @@ pipeline{
                 }
             }
         }
-        stage ("Deploy K8s") {
+        stage ("Trigger: Pipeline HelloWorldCD") {
             steps {
-                build wait: false, propagate: false, job: "HelloWorldCD/master",
+                build job: "HelloWorldCD/master", wait: false, propagate: false,
                 parameters: [
                     string(name: "CHART_VERSION", value: "${CHART_VERSION}")
                 ]
