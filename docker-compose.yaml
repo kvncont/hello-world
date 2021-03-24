@@ -1,0 +1,39 @@
+version: "3.9"
+services:
+  
+  docker:
+    image: "docker:dind"
+    privileged: true
+    environment:
+      - DOCKER_TLS_CERTDIR=/certs
+    ports:
+      - "2376:2376"
+    volumes:
+      - ${HOME}/docker/volumes/jenkins-docker-certs:/certs/client
+      - ${HOME}/docker/volumes/jenkins_home:/var/jenkins_home
+  
+  jenkins:
+    build:
+      context: .
+      dockerfile: Dockerfile_Jenkins
+    environment:
+      - DOCKER_HOST=tcp://docker:2376
+      - DOCKER_CERT_PATH=/certs/client
+      - DOCKER_TLS_VERIFY=1
+    ports:
+      - "5000:5000"
+      - "8080:8080"
+    volumes:
+      - ${HOME}/docker/volumes/jenkins-docker-certs:/certs/client:ro
+      - ${HOME}/docker/volumes/jenkins_home:/var/jenkins_home
+
+  chart-museum:
+    image: ghcr.io/helm/chartmuseum:v0.13.1
+    environment:
+      - DEBUG=1
+      - STORAGE=local
+      - STORAGE_LOCAL_ROOTDIR=/charts
+    ports:
+      - "8081:8080"
+    volumes: 
+      - ${HOME}/helm/charts:/charts
