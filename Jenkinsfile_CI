@@ -1,7 +1,12 @@
 pipeline{
     agent any
+    options {
+        timeout(time: 15, unit: "MINUTES")
+        disableConcurrentBuilds()
+        timestamps()
+    }
     parameters{
-        string(name: 'CHART_VERSION', defaultValue: '', description: 'This version number should be incremented each time you make changes. Versions are expected to follow Semantic Versioning 0.1.0 (https://semver.org/)')
+        string(name: "CHART_VERSION", defaultValue: "", description: "This version number should be incremented each time you make changes. Versions are expected to follow Semantic Versioning 0.1.0 (https://semver.org/)")
     }
     stages{
         stage("Maven"){
@@ -32,7 +37,7 @@ pipeline{
             }
             steps{
                 script{
-                    withCredentials([usernamePassword(credentialsId: 'DOCKER_REGISTRY', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
+                    withCredentials([usernamePassword(credentialsId: "DOCKER_REGISTRY", passwordVariable: "PASSWORD", usernameVariable: "USERNAME")]) {
                         sh "docker login --username ${USERNAME} --password ${PASSWORD}"
                     }
                     sh "docker build -t ${REGISTRY}/${REPOSITORY}/${IMAGE}:${TAG} ."
@@ -59,7 +64,7 @@ pipeline{
                 REPOSITORY_NAME = "chartmuseum"
                 REPOSITORY_URL = "http://chart-museum:8080"
             }
-            steps{    
+            steps{
                 sh "helm repo add ${REPOSITORY_NAME} ${REPOSITORY_URL}"
                 sh "helm repo update"
                 sh "helm search repo ${CHART_NAME}"
@@ -81,7 +86,7 @@ pipeline{
         }
         stage ("Deploy K8s") {
             steps {
-                build job: "HelloWorldCD", 
+                build wait: false, propagate: false, job: "HelloWorldCD/master",
                 parameters: [
                     string(name: "CHART_VERSION", value: "${CHART_VERSION}")
                 ]
