@@ -14,12 +14,9 @@ pipeline{
         stage("Deploy K8s"){
             steps{
                 sh "helm repo update"
-                sh "helm search repo ${params.CHART_NAME}"
+                sh "helm search repo ${params.CHART_NAME} --version ${params.CHART_VERSION}"
                 echo "Deploying helm chart version: ${params.CHART_VERSION}"
                 sleep 5
-                script{
-                    currentBuild.displayName = "#${BUILD_NUMBER}-${params.CHART_NAME}-${params.CHART_VERSION}"
-                }
             }
             post{
                 always{
@@ -37,6 +34,9 @@ pipeline{
     post{
         always{
             echo "========always========"
+            script{
+                currentBuild.displayName = "#${BUILD_NUMBER}-${params.CHART_NAME}-${params.CHART_VERSION}"
+            }
         }
         success{
             echo "========pipeline executed successfully ========"
