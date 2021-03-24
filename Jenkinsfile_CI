@@ -6,7 +6,7 @@ pipeline{
         timestamps()
     }
     parameters{
-        string(name: "CHART_VERSION", defaultValue: "", description: "This version number should be incremented each time you make changes. Versions are expected to follow Semantic Versioning 0.1.0 (https://semver.org/)")
+        string(name: "CHART_VERSION", defaultValue: "${params.CHART_VERSION}", description: "This version number should be incremented each time you make changes. Versions are expected to follow Semantic Versioning 0.1.0 (https://semver.org/)")
     }
     stages{
         stage("Maven"){
@@ -86,7 +86,7 @@ pipeline{
         }
         stage ("Trigger: Pipeline HelloWorldCD") {
             when {
-                branch 'master'
+                branch "master"
             }
             steps {
                 build job: "HelloWorldCD/master", wait: false, propagate: false,
