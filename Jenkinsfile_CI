@@ -1,7 +1,7 @@
 pipeline{
     agent any
     stages{
-        
+
         stage("Maven"){
             tools{
                 maven "apache-maven-3.6.3"
@@ -33,7 +33,7 @@ pipeline{
                 script{
                     echo "Docker login"
                     withCredentials([usernamePassword(credentialsId: 'DOCKER_REGISTRY', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
-                        sh "docker login --username ${USERNAME} --password-stdin ${PASSWORD}"
+                        sh "docker login --username ${USERNAME} --password ${PASSWORD}"
                     }
 
                     echo "Docker build"
