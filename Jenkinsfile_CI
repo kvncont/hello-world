@@ -72,6 +72,8 @@ pipeline{
                 sh "helm repo add ${REPOSITORY_NAME} ${REPOSITORY_URL}"
                 sh "helm repo update"
                 sh "helm search repo ${CHART_NAME}"
+                // If you want to use this line you need to install de push plugin
+                // helm plugin install https://github.com/chartmuseum/helm-push.git
                 sh "helm push hello-world/ chartmuseum --version ${CHART_VERSION}"
                 sh "helm repo update"
                 sh "helm search repo ${CHART_NAME}"
