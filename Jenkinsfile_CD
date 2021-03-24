@@ -18,7 +18,7 @@ pipeline{
                 echo "Deploying helm chart version: ${params.CHART_VERSION}"
                 sleep 5
                 script{
-                    env.currentBuild.displayName = "#${BUILD_NUMBER}-${params.CHART_NAME}-${params.CHART_VERSION}"
+                    currentBuild.displayName = "#${BUILD_NUMBER}-${params.CHART_NAME}-${params.CHART_VERSION}"
                 }
             }
             post{
