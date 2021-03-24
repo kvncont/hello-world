@@ -65,8 +65,8 @@ pipeline{
                 REPOSITORY_URL = "http://chart-museum:8081"
             }
             steps{    
-                sh "helm repo update"
                 sh "helm repo add ${REPOSITORY_NAME} ${REPOSITORY_URL}"
+                sh "helm repo update"
                 sh "helm search repo ${CHART_NAME}"
                 sh "helm push hello-world/ chartmuseum --version ${CHART_VERSION}"
                 sh "helm repo update"
