@@ -12,6 +12,7 @@ pipeline{
         stage("Deploy K8s"){
             steps{
                 echo "Deploying helm chart version: ${params.CHART_VERSION}"
+                sleep 10
             }
             post{
                 always{
