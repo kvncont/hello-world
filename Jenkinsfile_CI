@@ -1,12 +1,9 @@
 pipeline{
     agent any
-
-    parameters {
+    parameters{
         string(name: 'CHART_VERSION', defaultValue: '', description: 'This version number should be incremented each time you make changes. Versions are expected to follow Semantic Versioning 0.1.0 (https://semver.org/)')
     }
-
     stages{
-
         stage("Maven"){
             tools{
                 maven "apache-maven-3.6.3"
@@ -26,7 +23,6 @@ pipeline{
                 }
             }
         }
-
         stage("Docker"){
             environment{
                 IMAGE = "hello-world"
@@ -56,7 +52,6 @@ pipeline{
                 }
             }
         }
-
         stage("Helm"){
             environment{
                 CHART_NAME = "hello-world"
@@ -82,6 +77,14 @@ pipeline{
                 failure{
                     echo "========A execution failed========"
                 }
+            }
+        }
+        stage ("Deploy K8s") {
+            steps {
+                build job: "HelloWorldCD", 
+                parameters: [
+                    string(name: "CHART_VERSION", value: "${CHART_VERSION}")
+                ]
             }
         }
     }

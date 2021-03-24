@@ -1,0 +1,35 @@
+pipeline{
+    agent any
+    parameters{
+        string(name: 'CHART_VERSION', defaultValue: '', description: 'This version number should be incremented each time you make changes. Versions are expected to follow Semantic Versioning 0.1.0 (https://semver.org/)')
+    }
+    stages{
+        stage("Deploy K8s"){
+            steps{
+                echo "Deploying helm chart..."
+            }
+            post{
+                always{
+                    echo "========always========"
+                }
+                success{
+                    echo "========A executed successfully========"
+                }
+                failure{
+                    echo "========A execution failed========"
+                }
+            }
+        }
+    }
+    post{
+        always{
+            echo "========always========"
+        }
+        success{
+            echo "========pipeline executed successfully ========"
+        }
+        failure{
+            echo "========pipeline execution failed========"
+        }
+    }
+}
