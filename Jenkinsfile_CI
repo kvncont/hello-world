@@ -62,7 +62,7 @@ pipeline{
                 CHART_NAME = "hello-world"
                 CHART_VERSION = "${params.CHART_VERSION}"
                 REPOSITORY_NAME = "chartmuseum"
-                REPOSITORY_URL = "http://chart-museum:8081"
+                REPOSITORY_URL = "http://chart-museum:8080"
             }
             steps{    
                 sh "helm repo add ${REPOSITORY_NAME} ${REPOSITORY_URL}"
