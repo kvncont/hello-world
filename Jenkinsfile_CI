@@ -85,6 +85,9 @@ pipeline{
             }
         }
         stage ("Trigger: Pipeline HelloWorldCD") {
+            when {
+                branch 'master'
+            }
             steps {
                 build job: "HelloWorldCD/master", wait: false, propagate: false,
                 parameters: [
