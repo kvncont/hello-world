@@ -6,7 +6,7 @@ pipeline{
     stages{
         stage("Deploy K8s"){
             steps{
-                echo "Deploying helm chart..."
+                echo "Deploying helm chart version: ${param.CHART_VERSION}"
             }
             post{
                 always{
