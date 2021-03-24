@@ -1,0 +1,93 @@
+pipeline{
+    agent any
+    stages{
+        stage("Maven"){
+            tools{
+                maven "apache-maven-3.6.3"
+            }
+            steps{
+                sh "mvn clean package"
+            }
+            post{
+                always{
+                    echo "========always========"
+                }
+                success{
+                    echo "========A executed successfully========"
+                }
+                failure{
+                    echo "========A execution failed========"
+                }
+            }
+        }
+        // stage("Docker"){
+        //     environment{
+        //         REGISTRY = "docker.io"
+        //         REPOSITORY = "kvncont"
+        //         IMAGE = "hello-world"
+        //         TAG = "23-03-2021.${BUILD.ID}"
+        //     }
+        //     steps{
+        //         echo "Docker build"
+        //         sh "docker build -t ${REGISTRY}/${REPOSITORY}/${IMAGE}:${TAG} ."
+        //         echo "Scanning image"
+
+        //         echo "Docker login"
+        //         sh "docker login --username username --password-stdin password"
+        //         echo "Docker push"
+        //         sh "docker push ${REGISTRY}/${REPOSITORY}/${IMAGE}:${TAG}"
+        //     }
+        //     post{
+        //         always{
+        //             echo "========always========"
+        //         }
+        //         success{
+        //             echo "========A executed successfully========"
+        //         }
+        //         failure{
+        //             echo "========A execution failed========"
+        //         }
+        //     }
+        // }
+        // stage("Helm"){
+        //     tools{
+        //         helm "helm-3.4.x"
+        //     }
+        //     environment{
+        //         REGISTRY = ""
+        //         CHART_VERSION = "kvncont"
+        //         APP_VERSION = ""
+        //     }
+        //     steps{
+        //         echo "Update version"
+
+        //         echo "Helm package"
+        //         sh "helm package <>"
+        //         echo "Helm push"
+        //         sh "helm push <>"
+        //     }
+        //     post{
+        //         always{
+        //             echo "========always========"
+        //         }
+        //         success{
+        //             echo "========A executed successfully========"
+        //         }
+        //         failure{
+        //             echo "========A execution failed========"
+        //         }
+        //     }
+        // }
+    }
+    post{
+        always{
+            echo "========always========"
+        }
+        success{
+            echo "========pipeline executed successfully ========"
+        }
+        failure{
+            echo "========pipeline execution failed========"
+        }
+    }
+}
