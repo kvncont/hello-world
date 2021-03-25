@@ -1,1 +1,2 @@
 # hello-world
+Este repositorio contiene una demo para mostrar como puede ser la integración y despliegue continuo de una aplicación en java (spring-boot) utilizando las siguientes tecnologías docker, helm y kubernetes. La idea es poder construir y desplegar la aplicación en un cluster de kubernetes con Jenkins o Azure Pipelines.
