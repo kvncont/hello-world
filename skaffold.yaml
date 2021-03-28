@@ -1,0 +1,19 @@
+apiVersion: skaffold/v2beta13
+kind: Config
+build:
+  artifacts:
+  - image: kvncont/hello-world
+    jib:
+      args:
+        - -DskipTests
+deploy:
+  helm:
+    releases:
+    - name: hello-world
+      chartPath: ./hello-world
+      namespace: default
+      artifactOverrides:
+        image: 
+          repository: kvncont/hello-world
+      valuesFiles:
+      - ./hello-world/values.yaml
