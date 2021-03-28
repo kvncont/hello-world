@@ -13,6 +13,6 @@ public class HelloWorldController {
 
     @RequestMapping("/")
 	public String index() {
-		return "Hello Wolrd from " + myEnvVar;
+		return "Hello world from " + myEnvVar;
 	}
 }
