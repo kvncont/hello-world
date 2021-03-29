@@ -71,13 +71,13 @@ pipeline{
                 }
             }
         }
-        stage ("Trigger: CDHelm") {
+        stage ("Trigger: CD_Helm") {
             when { 
                 branch "master"
                 equals expected: "true", actual: "${params.DEPLOY}"
             }
             steps {
-                build job: "helm/main", wait: false, propagate: false,
+                build job: "CD_Helm/main", wait: false, propagate: false,
                 parameters: [
                     string(name: "CHART_NAME", value: "${CHART_NAME}"),
                     string(name: "CHART_VERSION", value: "${CHART_VERSION}")
