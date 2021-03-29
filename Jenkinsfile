@@ -73,7 +73,7 @@ pipeline{
         }
         stage ("Trigger: CDHelm") {
             when { 
-                branch "main"
+                branch "master"
                 equals expected: "true", actual: "${params.DEPLOY}"
             }
             steps {
