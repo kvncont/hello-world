@@ -3,7 +3,7 @@ Este repositorio contiene una demo para mostrar como puede ser la integración y
 
 Este proyecto usa [Jib](https://github.com/GoogleContainerTools/jib) para construir automaticamente la imagen de docker que será instalada en el cluster. Si quieres visualizar el contenido de la imagen ejecuta los siguientes comandos.
 
-Contruye la imagen de docker localmente con el tag latest.
+Contruye la imagen de docker localmente (`kvncont/hello-world:latest`).
 ```
 mvn compile jib:dockerBuild
 ```
