@@ -28,7 +28,7 @@ pipeline{
             }
             steps{
                 script{
-                    def image = "$CONTAINER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
+                    def image = "${CONTAINER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
                     withCredentials([
                     usernamePassword(credentialsId: "DOCKER_REGISTRY", passwordVariable: "PASSWORD", usernameVariable: "USERNAME")
                     ]) {
