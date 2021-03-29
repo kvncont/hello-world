@@ -32,7 +32,7 @@ pipeline{
                     withCredentials([
                     usernamePassword(credentialsId: "DOCKER_REGISTRY", passwordVariable: "PASSWORD", usernameVariable: "USERNAME")
                     ]) {
-                        sh "mvn clean package -Djib.to.image=${image} -Djib.to.tags=${TAG} -Djib.to.auth.username=${USERNAME} -Djib.to.auth.password=${PASSWORD}"
+                        sh "mvn clean package -Djib.to.image=${image} -Djib.to.tags=${IMAGE_TAG} -Djib.to.auth.username=${USERNAME} -Djib.to.auth.password=${PASSWORD}"
                     }
                 }
             }
