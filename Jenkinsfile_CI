@@ -12,6 +12,9 @@ pipeline{
         booleanParam(name: "DEPLOY", defaultValue: true, description: "Do you want to deploy the chart in production?")
     }
     environment{
+        CONTAINER_REGISTRY = "docker.io/kvncont"
+        IMAGE_NAME = "hello-world"
+        IMAGE_TAG = "${GIT_COMMIT}"
         CHART_NAME = "hello-world"
         CHART_VERSION = "${params.CHART_VERSION}"
         REPOSITORY_NAME = "chartmuseum"
@@ -24,36 +27,13 @@ pipeline{
                 maven "apache-maven-3.6.3"
             }
             steps{
-                sh "mvn clean package"
-            }
-            post{
-                always{
-                    echo "========always========"
-                }
-                success{
-                    echo "========A executed successfully========"
-                }
-                failure{
-                    echo "========A execution failed========"
-                }
-            }
-        }
-        stage("Docker"){
-            when { equals expected: "All Stages", actual: "${params.CHOICE}" }
-            environment{
-                IMAGE = "hello-world"
-                REGISTRY = "docker.io"
-                REPOSITORY = "kvncont"
-                TAG = "${GIT_COMMIT}"
-            }
-            steps{
                 script{
-                    withCredentials([usernamePassword(credentialsId: "DOCKER_REGISTRY", passwordVariable: "PASSWORD", usernameVariable: "USERNAME")]) {
-                        sh "docker login --username ${USERNAME} --password ${PASSWORD}"
+                    def image = "$CONTAINER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
+                    withCredentials([
+                    usernamePassword(credentialsId: "DOCKER_REGISTRY", passwordVariable: "PASSWORD", usernameVariable: "USERNAME")
+                    ]) {
+                        sh "mvn clean package -Djib.to.image=${image} -Djib.to.tags=${TAG} -Djib.to.auth.username=${USERNAME} -Djib.to.auth.password=${PASSWORD}"
                     }
-                    sh "docker build -t ${REGISTRY}/${REPOSITORY}/${IMAGE}:${TAG} ."
-                    echo "Scanning image (anchore, trivy, etc)"
-                    sh "docker push ${REGISTRY}/${REPOSITORY}/${IMAGE}:${TAG}"
                 }
             }
             post{
