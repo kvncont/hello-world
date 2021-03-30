@@ -2,11 +2,26 @@ trigger:
 - master
 - develop
 
-pr:
-- master
-- develop
+# pr:
+# - master
+# - develop
 
 variables:
+- group: SECRETS
+- name: CONTAINER_REGISTRY
+  value: docker.io/kvncont
+- name: IMAGE_NAME
+  value: hello-world
+- name: IMAGE_TAG
+  value: $(Build.SourceVersion)
+# - name: CHART_NAME
+#   value: hello-world
+# - name: CHART_VERSION
+#   value: 0.1.1
+# - name: REPOSITORY_NAME
+#   value: chartmuseum
+# - name: REPOSITORY_URL
+#   value: http://chart-museum:8080
 - name: k8sNamespaceForPR
   value: app-review-app-$(System.PullRequest.PullRequestId)
 
@@ -24,7 +39,7 @@ stages:
         displayName: Maven Package
         inputs:
           mavenPomFile: pom.xml
-          goals: clean package
+          goals: clean package -Djib.to.image=$(CONTAINER_REGISTRY)/$(IMAGE_NAME):$(IMAGE_TAG) -Djib.to.auth.username=$(DOCKER_REGISTRY_USERNAME) -Djib.to.auth.password=$(DOCKER_REGISTRY_PASSWORD)
           # publishJUnitResults: true
           testResultsFiles: '**/surefire-reports/TEST-*.xml'
           # codeCoverageToolOption: JaCoCo
@@ -33,148 +48,148 @@ stages:
           jdkVersionOption: 1.8
           mavenOptions: -Xmx3072m
 
-      - task: DockerInstaller@0
-        displayName: Docker Install
-        inputs:
-          dockerVersion: 17.09.0-ce
+      # - task: DockerInstaller@0
+      #   displayName: Docker Install
+      #   inputs:
+      #     dockerVersion: 17.09.0-ce
 
-      - task: Docker@2
-        displayName: Docker Build
-        inputs:
-          repository: kvncont/hello-world
-          command: build
-          Dockerfile: '**/Dockerfile'
-          tags: $(Build.BuildId)
+      # - task: Docker@2
+      #   displayName: Docker Build
+      #   inputs:
+      #     repository: kvncont/hello-world
+      #     command: build
+      #     Dockerfile: '**/Dockerfile'
+      #     tags: $(Build.BuildId)
 
-      - task: Docker@2
-        displayName: Docker Push
-        condition: and(succeeded(), or(startsWith(variables['Build.SourceBranch'], 'refs/pull/'), eq(variables['Build.SourceBranch'], 'refs/heads/master')))
-        inputs:
-          containerRegistry: Docker Registry
-          repository: kvncont/hello-world
-          command: push
-          tags: $(Build.BuildId)
+      # - task: Docker@2
+      #   displayName: Docker Push
+      #   condition: and(succeeded(), or(startsWith(variables['Build.SourceBranch'], 'refs/pull/'), eq(variables['Build.SourceBranch'], 'refs/heads/master')))
+      #   inputs:
+      #     containerRegistry: Docker Registry
+      #     repository: kvncont/hello-world
+      #     command: push
+      #     tags: $(Build.BuildId)
 
-      - task: PublishPipelineArtifact@1
-        displayName: Upload Manifest
-        inputs:
-          targetPath: $(Build.SourcesDirectory)/deployment.yml
-          artifact: manifest
-          publishLocation: pipeline
+      # - task: PublishPipelineArtifact@1
+      #   displayName: Upload Manifest
+      #   inputs:
+      #     targetPath: $(Build.SourcesDirectory)/deployment.yml
+      #     artifact: manifest
+      #     publishLocation: pipeline
 
-- stage: CD_DEV
-  displayName: CD Dev - Stage
-  condition: and(succeeded(), or(startsWith(variables['Build.SourceBranch'], 'refs/pull/'), eq(variables['Build.SourceBranch'], 'refs/heads/master')))
-  dependsOn: CI
-  jobs:
+# - stage: CD_DEV
+#   displayName: CD Dev - Stage
+#   condition: and(succeeded(), or(startsWith(variables['Build.SourceBranch'], 'refs/pull/'), eq(variables['Build.SourceBranch'], 'refs/heads/master')))
+#   dependsOn: CI
+#   jobs:
 
-  - deployment: DeployPRDev
-    displayName: Deploy Pull Request - Dev
-    condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/pull/'))
-    environment: Development.$(k8sNamespaceForPR)
-    strategy:
-      runOnce:
-        deploy:
-          steps:
+#   - deployment: DeployPRDev
+#     displayName: Deploy Pull Request - Dev
+#     condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/pull/'))
+#     environment: Development.$(k8sNamespaceForPR)
+#     strategy:
+#       runOnce:
+#         deploy:
+#           steps:
 
-          - reviewApp: app
+#           - reviewApp: app
 
-          - task: Kubernetes@1
-            displayName: Create a new namespace for the pull request
-            inputs:
-              useClusterAdmin: true
-              command: apply
-              useConfigurationFile: true
-              configurationType: inline
-              inline: |
-                apiVersion: v1
-                kind: Namespace
-                metadata:
-                  name: $(k8sNamespaceForPR)
+#           - task: Kubernetes@1
+#             displayName: Create a new namespace for the pull request
+#             inputs:
+#               useClusterAdmin: true
+#               command: apply
+#               useConfigurationFile: true
+#               configurationType: inline
+#               inline: |
+#                 apiVersion: v1
+#                 kind: Namespace
+#                 metadata:
+#                   name: $(k8sNamespaceForPR)
 
-          - task: KubernetesManifest@0
-            inputs:
-              action: deploy
-              namespace: $(k8sNamespaceForPR)
-              manifests: $(Pipeline.Workspace)/manifest/deployment.yml
-              containers: kvncont/hello-world:$(Build.BuildId)
-              rolloutStatusTimeout: 300
+#           - task: KubernetesManifest@0
+#             inputs:
+#               action: deploy
+#               namespace: $(k8sNamespaceForPR)
+#               manifests: $(Pipeline.Workspace)/manifest/deployment.yml
+#               containers: kvncont/hello-world:$(Build.BuildId)
+#               rolloutStatusTimeout: 300
 
-  - deployment: DeployDev
-    displayName: Deploy - Dev
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-    environment: Development.app
-    strategy:
-      runOnce:
-        deploy:
-          steps:
+#   - deployment: DeployDev
+#     displayName: Deploy - Dev
+#     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+#     environment: Development.app
+#     strategy:
+#       runOnce:
+#         deploy:
+#           steps:
 
-          - task: KubernetesManifest@0
-            displayName: Create Secret
-            inputs:
-              action: createSecret
-              secretType: dockerRegistry
-              secretName: docker-registry-kvncont
-              dockerRegistryEndpoint: Docker Registry
+#           - task: KubernetesManifest@0
+#             displayName: Create Secret
+#             inputs:
+#               action: createSecret
+#               secretType: dockerRegistry
+#               secretName: docker-registry-kvncont
+#               dockerRegistryEndpoint: Docker Registry
 
-          - task: KubernetesManifest@0
-            displayName: Deploy Manifest
-            inputs:
-              action: deploy
-              manifests: $(Pipeline.Workspace)/manifest/deployment.yml
-              containers: kvncont/hello-world:$(Build.BuildId)
-              rolloutStatusTimeout: '300'
+#           - task: KubernetesManifest@0
+#             displayName: Deploy Manifest
+#             inputs:
+#               action: deploy
+#               manifests: $(Pipeline.Workspace)/manifest/deployment.yml
+#               containers: kvncont/hello-world:$(Build.BuildId)
+#               rolloutStatusTimeout: '300'
 
-- stage: CD_PRO
-  displayName: CD Pro - Stage
-  dependsOn: CD_DEV
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-  jobs:
+# - stage: CD_PRO
+#   displayName: CD Pro - Stage
+#   dependsOn: CD_DEV
+#   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+#   jobs:
 
-  - deployment: DeployEastUS2Pro
-    displayName: Deploy East US 2 - Pro
-    environment: Production.eastus2
-    strategy:
-      runOnce:
-        deploy:
-          steps:
+#   - deployment: DeployEastUS2Pro
+#     displayName: Deploy East US 2 - Pro
+#     environment: Production.eastus2
+#     strategy:
+#       runOnce:
+#         deploy:
+#           steps:
 
-          - task: KubernetesManifest@0
-            displayName: Create Secret
-            inputs:
-              action: createSecret
-              secretType: dockerRegistry
-              secretName: docker-registry-kvncont
-              dockerRegistryEndpoint: Docker Registry
+#           - task: KubernetesManifest@0
+#             displayName: Create Secret
+#             inputs:
+#               action: createSecret
+#               secretType: dockerRegistry
+#               secretName: docker-registry-kvncont
+#               dockerRegistryEndpoint: Docker Registry
 
-          - task: KubernetesManifest@0
-            displayName: Deploy Manifest
-            inputs:
-              action: deploy
-              manifests: $(Pipeline.Workspace)/manifest/deployment.yml
-              containers: kvncont/hello-world:$(Build.BuildId)
-              rolloutStatusTimeout: 300
+#           - task: KubernetesManifest@0
+#             displayName: Deploy Manifest
+#             inputs:
+#               action: deploy
+#               manifests: $(Pipeline.Workspace)/manifest/deployment.yml
+#               containers: kvncont/hello-world:$(Build.BuildId)
+#               rolloutStatusTimeout: 300
           
-  - deployment: DeployCentralUSPro
-    displayName: Deploy Central US - Pro
-    environment: Production.centralus
-    strategy:
-      runOnce:
-        deploy:
-          steps:
+#   - deployment: DeployCentralUSPro
+#     displayName: Deploy Central US - Pro
+#     environment: Production.centralus
+#     strategy:
+#       runOnce:
+#         deploy:
+#           steps:
 
-          - task: KubernetesManifest@0
-            displayName: Create Secret
-            inputs:
-              action: createSecret
-              secretType: dockerRegistry
-              secretName: docker-registry-kvncont
-              dockerRegistryEndpoint: Docker Registry
+#           - task: KubernetesManifest@0
+#             displayName: Create Secret
+#             inputs:
+#               action: createSecret
+#               secretType: dockerRegistry
+#               secretName: docker-registry-kvncont
+#               dockerRegistryEndpoint: Docker Registry
 
-          - task: KubernetesManifest@0
-            displayName: Deploy Manifest
-            inputs:
-              action: deploy
-              manifests: $(Pipeline.Workspace)/manifest/deployment.yml
-              containers: kvncont/hello-world:$(Build.BuildId)
-              rolloutStatusTimeout: 300
+#           - task: KubernetesManifest@0
+#             displayName: Deploy Manifest
+#             inputs:
+#               action: deploy
+#               manifests: $(Pipeline.Workspace)/manifest/deployment.yml
+#               containers: kvncont/hello-world:$(Build.BuildId)
+#               rolloutStatusTimeout: 300
