@@ -8,7 +8,7 @@ pipeline{
     }
     parameters{
         string(name: "CHART_VERSION", defaultValue: "${params.CHART_VERSION}", description: "This version number should be incremented each time you make changes. Versions are expected to follow Semantic Versioning 0.1.0 (https://semver.org/)")
-        choice(name: "CHOICE", choices: ["All Stages", "Helm Stage"], description: "Pick All is you one to run all the stages (Maven, Docker, Helm), or Helm is you only want to run the stage (Helm)")
+        choice(name: "CHOICE", choices: ["All Stages", "Helm Stage"], description: "Pick 'All Stages' is you one to run the complete pipeline (Maven, Helm, Trigger: CD_Helm), or Helm is you only want to run the stage (Helm)")
         booleanParam(name: "DEPLOY", defaultValue: true, description: "Do you want to deploy the chart in production?")
     }
     environment{
