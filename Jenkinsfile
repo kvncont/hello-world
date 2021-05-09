@@ -24,6 +24,12 @@ pipeline {
             }
         }
         stage("Sonarqube - Code Analysis") {
+            agent {
+                docker { 
+                    image "maven:3.8.1-jdk-11-slim"
+                    reuseNode true
+                }
+            }
             steps {
                 script {
                     withSonarQubeEnv("SonarQube") {
