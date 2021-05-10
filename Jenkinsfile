@@ -59,7 +59,7 @@ pipeline {
                 }
             }
             steps {
-                echo "Analyzing image ${IMAGE_NAME}:${IMAGE_TAG..."
+                echo "Analyzing image ${IMAGE_NAME}:${IMAGE_TAG}..."
             }
         }
         stage("Docker Push"){
