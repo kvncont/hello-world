@@ -23,7 +23,7 @@ pipeline {
                 """
             }
         }
-        stage("Sonarqube - Code Analysis") {
+        stage("SonarQube - Code Analysis") {
             agent {
                 docker { 
                     image "maven:3.8.1-jdk-11-slim"
@@ -32,13 +32,13 @@ pipeline {
             }
             steps {
                 script {
-                    withSonarQubeEnv("SONARQUBE_CLOUD") {
+                    withSonarQubeEnv("SONAR_CLOUD") {
                         sh "mvn sonar:sonar -Dsonar.branch.name=${BRANCH_NAME}"
                     }
                 }
             }
         }
-        stage("Sonarqube - Quality Gate") {
+        stage("SonarQube - Quality Gate") {
             steps {
                 timeout(time: 5, unit: "MINUTES") {
                     waitForQualityGate abortPipeline: true
