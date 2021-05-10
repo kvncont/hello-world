@@ -7,12 +7,12 @@ pipeline {
         timestamps()
     }
     environment {
-        CONTAINER_REGISTRY = "docker.io/kvncont"
-        IMAGE_NAME = "hello-world"
-        IMAGE_TAG = "${BRANCH_NAME}-${GIT_COMMIT}"
+        REGISTRY_CREDENTIAL = "DOCKER_REGISTRY"
+        IMAGE_NAME = "docker.io/kvncont/hello-world"
+        IMAGE_TAG = "${BRANCH_NAME}.${BUILD_NUMBER}.${GIT_COMMIT}"
     }
     stages {
-        stage("Maven - Build") {
+        stage("Maven - Package") {
             agent {
                 docker { image "maven:3.8.1-jdk-11-slim" }
             }
@@ -25,7 +25,7 @@ pipeline {
         }
         stage("SonarQube - Code Analysis") {
             agent {
-                docker { 
+                docker {
                     image "maven:3.8.1-jdk-11-slim"
                     reuseNode true
                 }
@@ -42,6 +42,34 @@ pipeline {
             steps {
                 timeout(time: 5, unit: "MINUTES") {
                     waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+        stage("Docker Build"){
+            steps{
+                sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+            }
+        }
+        stage("Vulnerability Scan"){
+            agent {
+                docker {
+                    image "aquasec/trivy"
+                    args "${IMAGE_NAME}:${IMAGE_TAG}"
+                    reuseNode true
+                }
+            }
+            steps {
+                echo "Analyzing image ${IMAGE_NAME}:${IMAGE_TAG..."
+            }
+        }
+        stage("Docker Push"){
+            steps{
+                script {
+                    // docker.withRegistry( '', registryCredential ) {
+                    //     IMAGE.push("${IMAGE_TAG}")
+                    //     IMAGE.push('latest')
+                    // }
+                    echo "Pushing Image..."
                 }
             }
         }
