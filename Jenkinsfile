@@ -68,7 +68,7 @@ pipeline {
         }
         stage("Docker Push"){
             when {
-                anyof {
+                anyOf {
                     branch "master"
                     branch "develop"
                 }
