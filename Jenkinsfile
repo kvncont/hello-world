@@ -32,7 +32,7 @@ pipeline {
             }
             steps {
                 script {
-                    withSonarQubeEnv("SonarQube") {
+                    withSonarQubeEnv("SONARQUBE_CLOUD") {
                         sh "mvn sonar:sonar -Dsonar.branch.name=${BRANCH_NAME}"
                     }
                 }
