@@ -7,7 +7,6 @@ pipeline {
         timestamps()
     }
     environment {
-        REGISTRY_CREDENTIAL = "DOCKER_REGISTRY"
         IMAGE_NAME = "docker.io/kvncont/hello-world"
         IMAGE_TAG = "${BRANCH_NAME}.${BUILD_NUMBER}.${GIT_COMMIT}"
     }
@@ -58,11 +57,9 @@ pipeline {
         stage("Docker Push"){
             steps{
                 script {
-                    // docker.withRegistry( '', registryCredential ) {
-                    //     IMAGE.push("${IMAGE_TAG}")
-                    //     IMAGE.push('latest')
-                    // }
-                    echo "Pushing Image..."
+                    withDockerRegistry(credentialsId: 'DOCKER_REGISTRY') {
+                        sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
+                    }
                 }
             }
         }
