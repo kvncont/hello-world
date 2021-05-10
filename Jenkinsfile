@@ -22,39 +22,57 @@ pipeline {
                 """
             }
         }
-        stage("SonarQube - Code Analysis") {
-            agent {
-                docker {
-                    image "maven:3.8.1-jdk-11-slim"
-                    reuseNode true
+        stage('Parallel Stage') {
+            parallel {
+                stage("Containerization"){
+                    stages {
+                        stage("Docker Build"){
+                            steps{
+                                sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+                            }
+                        }
+                        stage("Vulnerability Scan"){
+                            steps {
+                                sh "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy ${IMAGE_NAME}:${IMAGE_TAG}"
+                            }
+                        }
+                    }
                 }
-            }
-            steps {
-                script {
-                    withSonarQubeEnv("SONAR_CLOUD") {
-                        sh "mvn sonar:sonar -Dsonar.branch.name=${BRANCH_NAME}"
+                stage("Sonar") {
+                    stages {
+                        stage("SonarQube - Code Analysis") {
+                            agent {
+                                docker {
+                                    image "maven:3.8.1-jdk-11-slim"
+                                    reuseNode true
+                                }
+                            }
+                            steps {
+                                script {
+                                    withSonarQubeEnv("SONAR_CLOUD") {
+                                        sh "mvn sonar:sonar -Dsonar.branch.name=${BRANCH_NAME}"
+                                    }
+                                }
+                            }
+                        }
+                        stage("SonarQube - Quality Gate") {
+                            steps {
+                                timeout(time: 5, unit: "MINUTES") {
+                                    waitForQualityGate abortPipeline: true
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
-        stage("SonarQube - Quality Gate") {
-            steps {
-                timeout(time: 5, unit: "MINUTES") {
-                    waitForQualityGate abortPipeline: true
+        stage("Docker Push"){
+            when {
+                anyof {
+                    branch "master"
+                    branch "develop"
                 }
             }
-        }
-        stage("Docker Build"){
-            steps{
-                sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
-            }
-        }
-        stage("Vulnerability Scan"){
-            steps {
-                sh "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy ${IMAGE_NAME}:${IMAGE_TAG}"
-            }
-        }
-        stage("Docker Push"){
             steps{
                 script {
                     withDockerRegistry(credentialsId: 'DOCKER_REGISTRY') {
@@ -62,6 +80,11 @@ pipeline {
                     }
                 }
             }
+        }
+    }
+    post{
+        always{
+            sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG}"
         }
     }
 }
