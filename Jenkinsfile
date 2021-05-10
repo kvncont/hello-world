@@ -54,11 +54,12 @@ pipeline {
             agent {
                 docker {
                     image "aquasec/trivy"
-                    args "${IMAGE_NAME}:${IMAGE_TAG}"
+                    args "-v /var/run/docker.sock:/var/run/docker.sock ${IMAGE_NAME}:${IMAGE_TAG}"
                     reuseNode true
                 }
             }
             steps {
+                // sh "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy ${IMAGE_NAME}:${IMAGE_TAG}"
                 echo "Analyzing image ${IMAGE_NAME}:${IMAGE_TAG}..."
             }
         }
